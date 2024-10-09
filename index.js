@@ -64,7 +64,27 @@ class Blockchain {
         return true;
     }
 
-
+    printChain(){
+        this.chain.forEach((block, i) => {
+            console.log('-----------------------------------------------------------------------')
+            console.log(`--                               Block ${i}                             --`)
+            console.log(`- Hash ${block.hash}`)
+            console.log(`- PreviousHash ${block.previousHash}`)
+            console.log(`- Timestamp ${block.timestamp}`)
+            if(block.transactions.length >=1){
+                console.log(`  Transactions:`);
+                block.transactions.forEach((transaction, i) => {
+                    console.log(`  $ Transaction ${i+1} | ${transaction.sender} -> ${transaction.receiver}: ${transaction.tokenAmount}`);
+                });                
+            } else{
+                console.log('- No transactions on this block')
+            }
+            console.log('-----------------------------------------------------------------------')
+            if(i+1 != this.chain.length){
+                console.log('                                   |                                   ')
+            }
+        })
+    }
 
 }
 
