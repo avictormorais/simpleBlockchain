@@ -24,6 +24,17 @@ class Blockchain {
             previousHash: this.getLastBlock() ? this.hash(this.getLastBlock()) : '0'
         }
         newBlock.hash = this.hash(newBlock)
+
+        if(newBlock.previousHash !== (this.getLastBlock() ? this.getLastBlock().hash : '0')) {
+            console.log(`Invalid block, previousHash invalid: ${newBlock.previousHash}`);
+            return false;
+        }
+
+        if(newBlock.hash != this.hash(newBlock)){
+            console.log(`Invalid block, hash invalid: ${newBlock.hash}`);
+            return false;
+        }
+
         this.chain.push(newBlock);
         this.Transactions = [];
         return newBlock;
