@@ -90,8 +90,23 @@ class Blockchain {
 
 let BLOCKCHAIN = new Blockchain();
 
-BLOCKCHAIN.createTransaction("Victor", "Davi", 7)
-
+// Criando transações com nomes em formato de String
+BLOCKCHAIN.createTransaction("Davi", "Elias", 7)
+BLOCKCHAIN.createTransaction("Elias", "Victor", 777)
 BLOCKCHAIN.newBlock();
+
+BLOCKCHAIN.createTransaction("Victor", "Wandreus", 777)
+BLOCKCHAIN.createTransaction("Wandreus", "Bruno", 7)
+BLOCKCHAIN.createTransaction("Wandreus", "Isac", 77)
+BLOCKCHAIN.newBlock();
+
+// Criando transações usando hash (simulando chaves)
+BLOCKCHAIN.createTransaction(sha256("Isac"), sha256("Victor"), 77)
+BLOCKCHAIN.newBlock();
+
+BLOCKCHAIN.printChain()
+
+// Imprimindo chain em formato JSON
+// console.log(JSON.stringify(BLOCKCHAIN.chain));
 
 console.log(`A blockchain é válida? ${BLOCKCHAIN.isBlockchainValid() ? "Sim" : "Não"}`)
