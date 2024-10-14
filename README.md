@@ -9,9 +9,13 @@ Este projeto implementa uma blockchain simples em JavaScript, permitindo a cria�
 - **Validação da Blockchain:** Verifica se a blockchain é válida, verificando se o hash do bloco anterior é válido.
 - **Impressão da Cadeia:** Mostra todos os blocos da blockchain no console, mostrando também cada transação.
 
+### Classes Principais:
+- **`Transaction`**: Representa uma transação entre dois usuários.
+- **`Block`**: Representa um bloco da blockchain.
+- **`Blockchain`**: Gerencia a chain de blocos, transações pendentes e validação da blockchain.
+
 ## Estrutura
 
-- **Construtor:** Inicializa a blockchain e cria o bloco gênesis.
 - **Métodos Principais:**
   - `hash(block)`: Calcula o hash de um bloco.
   - `getLastBlock()`: Retorna o último bloco da chain.
@@ -20,12 +24,18 @@ Este projeto implementa uma blockchain simples em JavaScript, permitindo a cria�
   - `isBlockchainValid()`: Verifica se a blockchain é válida, conferindo hashes.
   - `printChain()`: Imprime todos os blocos da blockchain no console.
 
+- **Classe `Transaction`**:
+  - Construtor: Recebe o remetente, o destinatário e a quantidade de tokens.
+
+- **Classe `Block`**:
+  - Construtor: Inicializa um bloco com o timestamp, lista de transações e o hash do bloco anterior.
+  - `calculateHash()`: Calcula o hash do bloco atual com base nas suas propriedades.
+
 ## Pré-requisitos
 
-- Node.js (v14 ou superior)
-- Biblioteca `js-sha256`
+- Node.js
 
-## Instalação
+## Execução
 
 1. Clone o repositório. 
    
