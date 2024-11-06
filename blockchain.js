@@ -6,33 +6,36 @@ class Blockchain{
     constructor(){
         this.chain = [];
         this.Transactions = [];
-        this.newBlock();
+        this.difficulty = 5
+        this.createGenesis();
     }
 
     getLastBlock(){
         return this.chain[this.chain.length - 1];
     }
 
+    createGenesis(){
+        let genesisBlock = new Block(Date.now(), [], "0", 0);
+        this.chain.push(genesisBlock);
+    }
+
     newBlock(){
-        let newBlock = new Block(
-            Date.now(),
-            this.Transactions,
-            this.getLastBlock() ? this.getLastBlock().hash : '0'
-        );
+        let nonce = 0;
+        let previousHash = this.getLastBlock().hash;
+        let hash;
 
-        if(newBlock.previousHash !== (this.getLastBlock() ? this.getLastBlock().hash : '0')){
-            console.log(`Invalid block, previousHash invalid: ${newBlock.previousHash}`);
-            return false;
+        while (true) {
+            let newBlock = new Block(Date.now(), this.Transactions, previousHash, nonce);
+            hash = newBlock.hash;
+
+            if (hash.substring(0, this.difficulty) === Array(this.difficulty + 1).join("0")) {
+                this.chain.push(newBlock);
+                this.Transactions = [];
+                console.log(`${new Date().toLocaleString()} > Bloco minerado: ${hash} com nonce: ${nonce}`);
+                return newBlock;
+            }
+            nonce++;
         }
-
-        if(newBlock.hash != newBlock.calculateHash()){
-            console.log(`Invalid block, hash invalid: ${newBlock.hash}`);
-            return false;
-        }
-
-        this.chain.push(newBlock);
-        this.Transactions = [];
-        return newBlock;
     }
 
     createTransaction(sender, receiver, tokenAmount){
