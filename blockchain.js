@@ -19,6 +19,11 @@ class Blockchain{
         this.chain.push(genesisBlock);
     }
 
+    isValidAddress(address) {
+        let regexAdress = /^777x[a-fA-F0-9]{10}$/;
+        return regexAdress.test(address);
+    }
+
     newBlock(){
         let nonce = 0;
         let previousHash = this.getLastBlock().hash;
@@ -38,8 +43,16 @@ class Blockchain{
         }
     }
 
-    createTransaction(sender, receiver, tokenAmount){
-        this.Transactions.push(new Transaction(sender, receiver, tokenAmount));
+    createTransaction(sender, receiver, tokenAmount) {
+        if(this.isValidAddress(sender) && this.isValidAddress(receiver)){
+            if(tokenAmount > 0){
+                this.Transactions.push(new Transaction(sender, receiver, tokenAmount));
+            } else{
+                console.error(`X - Quantia de tokens inválida (${tokenAmount}), transação recusada.`);
+            }
+        } else {
+            console.error("X - Um ou ambos os endereços são inválidos, transação recusada. | " + sender, receiver);
+        }
     }
 
     isBlockchainValid(){

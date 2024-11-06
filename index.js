@@ -1,18 +1,20 @@
 const Blockchain = require('./blockchain');
-const sha256 = require('js-sha256');
 
 let BLOCKCHAIN = new Blockchain();
 
-BLOCKCHAIN.createTransaction("Davi", "Elias", 7);
-BLOCKCHAIN.createTransaction("Elias", "Victor", 777);
+BLOCKCHAIN.createTransaction('777x0000000001', '777x0000000002', 77);
+BLOCKCHAIN.createTransaction('777x000000ABCD', '777x0000000001', 777);
+BLOCKCHAIN.createTransaction('777x000000ABCD', '777x0000000002', -1);
 BLOCKCHAIN.newBlock();
 
-BLOCKCHAIN.createTransaction("Victor", "Wandreus", 777);
-BLOCKCHAIN.createTransaction("Wandreus", "Bruno", 7);
-BLOCKCHAIN.createTransaction("Wandreus", "Isac", 77);
+BLOCKCHAIN.createTransaction('777xF5A231CF98', '777x0000000001', 77);
+BLOCKCHAIN.createTransaction('777xTESTE', '777x0000000001', 7);
+BLOCKCHAIN.createTransaction('777x8F6A2017E2', '777x000000ABCD', 333);
+BLOCKCHAIN.createTransaction('777x2345F76899', '777x0000000011', 7);
+BLOCKCHAIN.createTransaction('777x0000000001', '777x00000000011', 7);
 BLOCKCHAIN.newBlock();
 
-BLOCKCHAIN.createTransaction(sha256("Isac"), sha256("Victor"), 77);
+BLOCKCHAIN.createTransaction('777x0000000001', '777x0000000002', 77);
 BLOCKCHAIN.newBlock();
 
 BLOCKCHAIN.printChain();
