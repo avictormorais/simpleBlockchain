@@ -6,7 +6,7 @@ class Blockchain{
     constructor(){
         this.chain = [];
         this.Transactions = [];
-        this.difficulty = 5
+        this.difficulty = 5;
         this.createGenesis();
     }
 
@@ -20,8 +20,35 @@ class Blockchain{
     }
 
     isValidAddress(address) {
-        let regexAdress = /^777x[a-fA-F0-9]{10}$/;
-        return regexAdress.test(address);
+        let regexAddress = /^777x[a-fA-F0-9]{10}$/;
+        return regexAddress.test(address);
+    }
+
+    transactionsByAddress(address){
+        let transactions = [];
+
+        this.chain.forEach((block) => {
+            block.transactions.forEach((transaction) => {
+                if(transaction.sender == address || transaction.receiver == address){
+                    transactions.push({ 
+                        blockHash: block.hash,
+                        transaction
+                    });                   
+                }
+            })
+        })
+
+        if(transactions.length > 0){
+            console.log('\n---------------------------------------')
+            console.log(` Transactions for address ${address}`)
+            transactions.forEach((item) => {
+                let { transaction, blockHash } = item;   
+                console.log(` - $ ${transaction.tokenAmount} ${transaction.sender === address ? 'sent to' : 'received from'} ${transaction.sender === address ? transaction.receiver : transaction.sender}, registered on block ${blockHash}`);
+            })
+            console.log('---------------------------------------')
+        } else{
+            console.log(`! No transactions for address ${address} recorded.`)
+        }
     }
 
     newBlock(){

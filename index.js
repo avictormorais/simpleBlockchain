@@ -14,9 +14,12 @@ BLOCKCHAIN.createTransaction('777x2345F76899', '777x0000000011', 7);
 BLOCKCHAIN.createTransaction('777x0000000001', '777x00000000011', 7);
 BLOCKCHAIN.newBlock();
 
-BLOCKCHAIN.createTransaction('777x0000000001', '777x0000000002', 77);
+BLOCKCHAIN.createTransaction('777x0000000001', '777x0000000005', 77);
 BLOCKCHAIN.newBlock();
 
 BLOCKCHAIN.printChain();
 
-console.log(`\n\nA blockchain é válida? ${BLOCKCHAIN.isBlockchainValid() ? "Sim" : "Não"}\n\n`);
+console.log(`\n\nA blockchain é válida? ${BLOCKCHAIN.isBlockchainValid() ? "Sim" : "Não"}`);
+
+BLOCKCHAIN.transactionsByAddress('777x0000000001')
+BLOCKCHAIN.transactionsByAddress('777x0000000009')
