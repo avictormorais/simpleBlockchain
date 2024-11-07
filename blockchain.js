@@ -39,15 +39,16 @@ class Blockchain{
         })
 
         if(transactions.length > 0){
-            console.log('\n---------------------------------------')
+            console.log('\n----------------------------------------')
             console.log(` Transactions for address ${address}`)
             transactions.forEach((item) => {
                 let { transaction, blockHash } = item;   
-                console.log(` - $ ${transaction.tokenAmount} ${transaction.sender === address ? 'sent to' : 'received from'} ${transaction.sender === address ? transaction.receiver : transaction.sender}, registered on block ${blockHash}`);
+                let received = transaction.sender === address ? false : true
+                console.log(` - $ ${received ? '<-' : '->'} ${transaction.tokenAmount} ${received ? 'received from' : 'sent to'} ${received ? transaction.sender : transaction.receiver}, registered on block ${blockHash}`);
             })
-            console.log('---------------------------------------')
+            console.log('----------------------------------------')
         } else{
-            console.log(`! No transactions for address ${address} recorded.`)
+            console.log(`\n! No transactions recorded for address ${address}.`)
         }
     }
 
@@ -63,7 +64,7 @@ class Blockchain{
             if (hash.substring(0, this.difficulty) === Array(this.difficulty + 1).join("0")) {
                 this.chain.push(newBlock);
                 this.Transactions = [];
-                console.log(`${new Date().toLocaleString()} > Bloco minerado: ${hash} com nonce: ${nonce}`);
+                console.log(`✅ Mined block (${new Date().toLocaleTimeString()}) > Hash: ${hash} nonce: ${nonce}`);
                 return newBlock;
             }
             nonce++;
@@ -75,10 +76,14 @@ class Blockchain{
             if(tokenAmount > 0){
                 this.Transactions.push(new Transaction(sender, receiver, tokenAmount));
             } else{
-                console.error(`X - Quantia de tokens inválida (${tokenAmount}), transação recusada.`);
+                console.error(`❌ ERROR - Invalid token amount (${tokenAmount}), transaction refused.`);
             }
         } else {
-            console.error("X - Um ou ambos os endereços são inválidos, transação recusada. | " + sender, receiver);
+            if(!this.isValidAddress(sender)){
+                console.error("❌ ERROR - sender invalid address, transaction refused. |", sender);
+            } else{
+                console.error("❌ ERROR - receiver invalid address, transaction refused. | ", receiver);
+            }
         }
     }
 
@@ -99,6 +104,7 @@ class Blockchain{
     }
 
     printChain(){
+        console.log('\n')
         this.chain.forEach((block, i) => {
             console.log('-----------------------------------------------------------------------');
             console.log(`--                               Block ${i}                             --`);

@@ -19,7 +19,7 @@ BLOCKCHAIN.newBlock();
 
 BLOCKCHAIN.printChain();
 
-console.log(`\n\nA blockchain é válida? ${BLOCKCHAIN.isBlockchainValid() ? "Sim" : "Não"}`);
+console.log(`\nA blockchain é válida? ${BLOCKCHAIN.isBlockchainValid() ? "Sim" : "Não"}`);
 
 BLOCKCHAIN.transactionsByAddress('777x0000000001')
 BLOCKCHAIN.transactionsByAddress('777x0000000009')
