@@ -8,6 +8,8 @@ Este projeto implementa uma blockchain simples em JavaScript, permitindo a cria�
 - **Transações:** Suporta transações entre usuários, registrando quem enviou e quem recebeu uma quantidade de tokens.
 - **Validação da Blockchain:** Verifica se a blockchain é válida, verificando se o hash do bloco anterior é válido.
 - **Impressão da Cadeia:** Mostra todos os blocos da blockchain no console, mostrando também cada transação.
+- **Histórico de Transações:** Mostra todas as transferencias que envolvem determinado endereço.
+- **Proof of Work:** Garante a integridade dos blocos.
 
 ### Classes Principais:
 - **`Transaction`**: Representa uma transação entre dois usuários.
@@ -23,6 +25,9 @@ Este projeto implementa uma blockchain simples em JavaScript, permitindo a cria�
   - `createTransaction(sender, receiver, tokenAmount)`: Cria uma nova transação e a adiciona na lista de transações pendentes.
   - `isBlockchainValid()`: Verifica se a blockchain é válida, conferindo hashes.
   - `printChain()`: Imprime todos os blocos da blockchain no console.
+  - `isValidAddress(address)`: Analisa por meio de RegEx se o endereço recebido é válido.
+  - `transactionsByAddress(address)`: Imprime todas as transações do endereço passado.
+  - `createGenesis()`: Cria o bloco gênesis da rede.
 
 - **Classe `Transaction`**:
   - Construtor: Recebe o remetente, o destinatário e a quantidade de tokens.
@@ -56,18 +61,35 @@ npm install
 node index.js
 ```
 
+## Padrão de endereço
+
+Os endereços dos `senders` e `receivers` devem seguir o seguinte padrão:
+
+```
+777x$$$$$$$$$$
+```
+
+Onde `777x` é um prefixo de identificação  e $ representa qualquer caractere hexadecimail, assim, padronizando todos as transações da rede. A função isValidAddress() é responsável por validar se os endereços seguem essa estrutura antes que as transações sejam aceitas.
+
+## Proof of Work
+
+O projeto conta com um sistema simples de PoW, a dificuldade atual está ajustada para `5`, portanto, só serão minerados blocos que o hash inicie com `00000...`.
+
+Para a mineração, há um atributo nonce no bloco, onde ao tentar minerar, ele é incrementado até conseguir ser aceito pela regra.
+
+
 ## Exemplos de Uso
 
 No código, as transações são criadas da seguinte forma:
 
 ```javascript
-BLOCKCHAIN.createTransaction("Victor", "Davi", 7);
+BLOCKCHAIN.createTransaction("777x0000000001", "777x0000000002", 7);
 BLOCKCHAIN.newBlock();
 ```
 
-Não necessariamente deve haver apenas uma transação por bloco. Também há exemplos convertendo o nome dos usuários para hashes.
+Não necessariamente deve haver apenas uma transação por bloco.
 
-Após a execução, a blockchain é impressa no console, mostrando todos os blocos e suas transações. A validação da blockchain também é feita chamando a função `isBlockchainValid()`
+Após a execução, a blockchain é impressa no console, mostrando todos os blocos e suas transações. A validação da blockchain também é feita chamando a função `isBlockchainValid()`, e logo em seguida, é exibido o histórico de transação de 2 endereços diferentes.
 
 ## Saída esperada
 
@@ -82,8 +104,8 @@ Cada bloco terá transações únicas, alguns usando nomes como `senders` e `rec
 - PreviousHash be336fbacf37f82270c1d220d856e3e50a546df6439692ff6300d3f4c91d5fd8
 - Timestamp 1728580427245
   Transactions:
-  $ Transaction 1 | Victor -> Wandreus: 777
-  $ Transaction 2 | Wandreus -> Bruno: 7
-  $ Transaction 3 | Wandreus -> Isac: 77
+  $ Transaction 1 | 777x0000000001 -> 777x0000000002: 777
+  $ Transaction 2 | 777x0000000008 -> 777x0000000001: 7
+  $ Transaction 3 | 777x0000000077 -> 777x0000000008: 77
 -----------------------------------------------------------------------
 ```
