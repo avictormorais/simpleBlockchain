@@ -5,8 +5,9 @@ class Blockchain{
     constructor(){
         this.chain = [];
         this.Transactions = [];
-        this.difficulty = 5;
-        this.miningReward = 5;
+        this.difficulty = 1;
+        this.miningReward = 50;
+        this.balances = {};
         this.createGenesis();
     }
 
@@ -22,6 +23,25 @@ class Blockchain{
     isValidAddress(address) {
         let regexAddress = /^777x[a-fA-F0-9]{10}$/;
         return regexAddress.test(address);
+    }
+
+    getAddressBalance(address) {
+        return this.balances[address] || 0;
+    }
+
+    updateBalances() {
+        this.balances = {};
+        this.chain.forEach((block) => {
+            block.transactions.forEach((transaction) => {
+                if(transaction.sender === address) {
+                    let total = transaction.tokenAmount + transaction.fee
+                    this.balances[transaction.sender] = (this.balances[transaction.sender] || 0) - total;
+                }
+                if(transaction.receiver === address) {
+                    this.balances[transaction.receiver] = (this.balances[transaction.receiver] || 0) + transaction.tokenAmount;
+                }
+            });
+        });
     }
 
     transactionsByAddress(address){
@@ -44,14 +64,14 @@ class Blockchain{
             transactions.forEach((item) => {
                 let { transaction, blockHash } = item;   
                 let received = transaction.sender === address ? false : true
-                console.log(` - $ ${received ? '<-' : '->'} ${transaction.tokenAmount} ${received ? 'received from' : 'sent to'} ${received ? transaction.sender || 'blockchain as mining reward' : transaction.receiver}, registered on block ${blockHash}`);            })
+                console.log(` - $ ${received ? '<-' : '->'} ${transaction.tokenAmount} ${received ? 'received from' : `(+${transaction.fee} fee) sent to`} ${received ? transaction.sender || 'blockchain as mining reward' : transaction.receiver}, registered on block ${blockHash}`);            })
             console.log('----------------------------------------')
         } else{
             console.log(`\n! No transactions recorded for address ${address}.`)
         }
     }
 
-    newBlock(minerAddress){
+    newBlock(minerAddress) {
         let nonce = 0;
         let previousHash = this.getLastBlock().hash;
         let hash;
@@ -69,6 +89,14 @@ class Blockchain{
     
             if (hash.substring(0, this.difficulty) === Array(this.difficulty + 1).join("0")) {
                 this.chain.push(newBlock);
+                transactionsToMine.forEach(transaction => {
+                    if (transaction.sender) {
+                        this.balances[transaction.sender] = (this.balances[transaction.sender] || 0) - transaction.tokenAmount - transaction.fee;
+                    }
+                    if (transaction.receiver) {
+                        this.balances[transaction.receiver] = (this.balances[transaction.receiver] || 0) + transaction.tokenAmount;
+                    }
+                });
                 console.log(`✅ Mined block (${new Date().toLocaleTimeString()}) > Hash: ${hash} nonce: ${nonce}`);
                 return newBlock;
             }
@@ -76,23 +104,16 @@ class Blockchain{
         }
     }
 
-    createTransaction(sender, receiver, tokenAmount, fee){
+    createTransaction(sender, receiver, tokenAmount, fee) {
         if(this.isValidAddress(sender) && this.isValidAddress(receiver)){
-            if(tokenAmount > 0){
-                if(fee > 0){
-                    this.Transactions.push(new Transaction(sender, receiver, tokenAmount, fee));
-                } else{
-                    console.error(`❌ ERROR - Invalid fee (${fee}), transaction refused.`);
-                }
-            } else{
-                console.error(`❌ ERROR - Invalid token amount (${tokenAmount}), transaction refused.`);
+            let senderBalance = this.getAddressBalance(sender);
+            if(tokenAmount + fee <= senderBalance && tokenAmount > 0 && fee >= 0) {
+                this.Transactions.push(new Transaction(sender, receiver, tokenAmount, fee));
+            } else {
+                console.error(`❌ ERROR - Insufficient balance or invalid transaction: ${tokenAmount} (Fee: ${fee})`);
             }
         } else {
-            if(!this.isValidAddress(sender)){
-                console.error("❌ ERROR - sender invalid address, transaction refused. |", sender);
-            } else{
-                console.error("❌ ERROR - receiver invalid address, transaction refused. | ", receiver);
-            }
+            console.error("❌ ERROR - Invalid address.");
         }
     }
 
