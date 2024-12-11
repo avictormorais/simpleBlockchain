@@ -2,11 +2,11 @@ const Block = require('./block');
 const Transaction = require('./transaction');
 
 class Blockchain{
-
     constructor(){
         this.chain = [];
         this.Transactions = [];
         this.difficulty = 5;
+        this.miningReward = 5;
         this.createGenesis();
     }
 
@@ -44,26 +44,31 @@ class Blockchain{
             transactions.forEach((item) => {
                 let { transaction, blockHash } = item;   
                 let received = transaction.sender === address ? false : true
-                console.log(` - $ ${received ? '<-' : '->'} ${transaction.tokenAmount} ${received ? 'received from' : 'sent to'} ${received ? transaction.sender : transaction.receiver}, registered on block ${blockHash}`);
-            })
+                console.log(` - $ ${received ? '<-' : '->'} ${transaction.tokenAmount} ${received ? 'received from' : 'sent to'} ${received ? transaction.sender || 'blockchain as mining reward' : transaction.receiver}, registered on block ${blockHash}`);            })
             console.log('----------------------------------------')
         } else{
             console.log(`\n! No transactions recorded for address ${address}.`)
         }
     }
 
-    newBlock(){
+    newBlock(minerAddress){
         let nonce = 0;
         let previousHash = this.getLastBlock().hash;
         let hash;
-
+        let transactionsToMine = this.Transactions
+            .sort((a, b) => b.fee - a.fee)
+            .slice(0, 3);
+        let totalFees = this.Transactions.reduce((sum, tx) => sum + (tx.fee || 0), 0);
+        let rewardTransaction = new Transaction(null, minerAddress, this.miningReward + totalFees, 0);
+        this.Transactions = this.Transactions.filter(tx => !transactionsToMine.includes(tx));
+        transactionsToMine.push(rewardTransaction);
+    
         while (true) {
-            let newBlock = new Block(Date.now(), this.Transactions, previousHash, nonce);
+            let newBlock = new Block(Date.now(), transactionsToMine, previousHash, nonce);
             hash = newBlock.hash;
-
+    
             if (hash.substring(0, this.difficulty) === Array(this.difficulty + 1).join("0")) {
                 this.chain.push(newBlock);
-                this.Transactions = [];
                 console.log(`✅ Mined block (${new Date().toLocaleTimeString()}) > Hash: ${hash} nonce: ${nonce}`);
                 return newBlock;
             }
@@ -71,10 +76,14 @@ class Blockchain{
         }
     }
 
-    createTransaction(sender, receiver, tokenAmount) {
+    createTransaction(sender, receiver, tokenAmount, fee){
         if(this.isValidAddress(sender) && this.isValidAddress(receiver)){
             if(tokenAmount > 0){
-                this.Transactions.push(new Transaction(sender, receiver, tokenAmount));
+                if(fee > 0){
+                    this.Transactions.push(new Transaction(sender, receiver, tokenAmount, fee));
+                } else{
+                    console.error(`❌ ERROR - Invalid fee (${fee}), transaction refused.`);
+                }
             } else{
                 console.error(`❌ ERROR - Invalid token amount (${tokenAmount}), transaction refused.`);
             }
@@ -114,7 +123,11 @@ class Blockchain{
             if(block.transactions.length >= 1){
                 console.log(`  Transactions:`);
                 block.transactions.forEach((transaction, i) => {
-                    console.log(`  $ Transaction ${i + 1} | ${transaction.sender} -> ${transaction.receiver}: ${transaction.tokenAmount}`);
+                    if(!transaction.sender){
+                        console.log(`\n  $ Reward | -> ${transaction.receiver}: ${transaction.tokenAmount}`)
+                    } else{
+                        console.log(`  $ Transaction ${i + 1} | ${transaction.sender} -> ${transaction.receiver}: ${transaction.tokenAmount} (Fee: ${transaction.fee})`)
+                    }
                 });
             } else {
                 console.log('- No transactions on this block');
