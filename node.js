@@ -19,6 +19,9 @@ class Node {
             if(!peer.blockchain.chain.some(bk => bk.hash === block.hash)){
                 peer.blockchain.chain.push(block);
                 peer.blockchain.updateBalances();
+                if(peer.blockchain.chain.length > this.blockchain.chain.length){
+                    peer.resolveFork();
+                }
             }
         });
     }
@@ -32,6 +35,21 @@ class Node {
                     peer.blockchain.Transactions.push(transaction);
                 }
             });
+        }
+    }
+
+    resolveFork() {
+        let longestChain = this.blockchain.chain;
+        console.log('fork')
+        this.peers.forEach(peer => {
+            if(peer.blockchain.chain.length > longestChain.length){
+                longestChain = peer.blockchain.chain;
+            }
+        });
+
+        if(longestChain !== this.blockchain.chain){
+            this.blockchain.chain = [...longestChain];
+            this.blockchain.updateBalances();
         }
     }
 }
