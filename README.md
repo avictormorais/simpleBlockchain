@@ -10,31 +10,44 @@ Este projeto implementa uma blockchain simples em JavaScript, permitindo a cria�
 - **Impressão da Cadeia:** Mostra todos os blocos da blockchain no console, mostrando também cada transação.
 - **Histórico de Transações:** Mostra todas as transferencias que envolvem determinado endereço.
 - **Proof of Work:** Garante a integridade dos blocos.
+- **Nós:** Simula diferentes mineradores interagindo com a rede.
+- **Controle de saldo:** Gerencia o saldo dos endereços para evitar transações inválidas.
+- **Recompensas:** Incentiva os mineradores priorizarem determinadas transações e serem compensados pelo trabalho realizado.
 
 ### Classes Principais:
 - **`Transaction`**: Representa uma transação entre dois usuários.
 - **`Block`**: Representa um bloco da blockchain.
 - **`Blockchain`**: Gerencia a chain de blocos, transações pendentes e validação da blockchain.
+- **`Node`**: Simula um nó que utiliza a rede.
 
 ## Estrutura
 
 - **Métodos Principais:**
   - `hash(block)`: Calcula o hash de um bloco.
   - `getLastBlock()`: Retorna o último bloco da chain.
-  - `newBlock()`: Cria um novo bloco e adiciona a chain.
-  - `createTransaction(sender, receiver, tokenAmount)`: Cria uma nova transação e a adiciona na lista de transações pendentes.
+  - `newBlock(minerAddress)`: Cria um novo bloco e adiciona a chain, prioriza as transações mais lucrativas e compensa o minerador.
+  - `createTransaction(sender, receiver, tokenAmount, fee)`: Cria uma nova transação e a adiciona na lista de transações pendentes, caso a mesma seja válida.
   - `isBlockchainValid()`: Verifica se a blockchain é válida, conferindo hashes.
   - `printChain()`: Imprime todos os blocos da blockchain no console.
   - `isValidAddress(address)`: Analisa por meio de RegEx se o endereço recebido é válido.
   - `transactionsByAddress(address)`: Imprime todas as transações do endereço passado.
   - `createGenesis()`: Cria o bloco gênesis da rede.
+  - `getAddressBalance(address)`: Retorna o saldo atual do endereço passado.
+  - `updateBalances()`: Percorre a cadeia e atualiza todos os saldos dos endereços.
+  - `connect()`: Conecta um nó a outro, possibilitando a troca de informações entre eles.
+  - `resolveFork()`: Verifica as cadeias e determina a de maior tamanho como válida.
 
 - **Classe `Transaction`**:
-  - Construtor: Recebe o remetente, o destinatário e a quantidade de tokens.
+  - Construtor: Recebe o remetente, o destinatário, a quantidade de tokens e a taxa de recompensa ao minerador.
 
 - **Classe `Block`**:
   - Construtor: Inicializa um bloco com o timestamp, lista de transações e o hash do bloco anterior.
   - `calculateHash()`: Calcula o hash do bloco atual com base nas suas propriedades.
+- **Classe `Node`**:
+  - Construtor: Inicializa um nó com a rede e inicializa uma lista de pares.
+  - `mineBlock(minerAddress)`: Minera um novo bloco no nó, e propaga-o após a mineração ser validada.
+  - `createTransaction(sender, receiver, tokenAmount, fee)`: Verifica se o pedido de transação é valido (qnt de tokens, taxa, saldo) e, caso válido, adiciona-a na lista de transações a serem mineradas.
+  - `resolveFork`: Verifica as cadeias e determina a maior como válida.
 
 ## Pré-requisitos
 
@@ -77,14 +90,26 @@ O projeto conta com um sistema simples de PoW, a dificuldade atual está ajustad
 
 Para a mineração, há um atributo nonce no bloco, onde ao tentar minerar, ele é incrementado até conseguir ser aceito pela regra.
 
+## Taxas e recompensa
+
+Ao minerar um bloco, o minerador recebe em seu endereço a recompensa base de mineração `50tks` mais a soma de todas as taxas das transações mineradas no bloco.
+
+Ao minerar um bloco, são priorizadas as transações que tem maiores taxas, tornando a mineração mais vistosa aos mineradores.
+
+## Forks e propagação de informações
+
+O sistema simula diferentes mineradores (`nós`), o que tornou necessário funções que comunicassem diferentes nós para tornar todos atualizados sobre as transações e blocos válidos na rede.
+
+Além disso, com diferentes nós minerando blocos, pode acontecer de criar `forks`, que são bifurcações da rede. Portanto, foi inplementado funções que verificam e garantem que as cadeias com maiores tamanhos serão tomadas como válidas, garantindo a integridade e imutabilidade da rede.
+
 
 ## Exemplos de Uso
 
 No código, as transações são criadas da seguinte forma:
 
 ```javascript
-BLOCKCHAIN.createTransaction("777x0000000001", "777x0000000002", 7);
-BLOCKCHAIN.newBlock();
+node1.createTransaction("777x0000000001", "777x0000000002", 7, 0.1);
+node1.mineBlock('777x0000000077');
 ```
 
 Não necessariamente deve haver apenas uma transação por bloco.
